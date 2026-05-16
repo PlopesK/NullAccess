@@ -4,6 +4,7 @@ from settings import *
 from game.player import Player
 from game.map import Map
 from states.victory import Victory
+from enemy import Enemy
 
 class Gameplay:
     def __init__(self, game):
@@ -16,6 +17,8 @@ class Gameplay:
 
         self.player.rect.x = self.map.player_spawn[0]
         self.player.rect.y = self.map.player_spawn[1]
+
+        self.enemy = Enemy(300, 300)
 
         self.font = pygame.font.SysFont(
             "consolas",
@@ -46,26 +49,29 @@ class Gameplay:
                     self.collected_files += 1
 
     def update(self):
+        self.player.update(self.map.walls)
 
-        self.player.update(
-            self.map.walls
-        )
+        self.enemy.update(self.player)
 
         self.collect_files()
 
         self.check_victory()
 
-    def check_victory(self):
+        self.check_death()
 
+    def check_death(self):
+        if self.player.rect.colliderect(self.enemy.rect):
+            from states.gameover import GameOver
+
+            self.game.change_state(GameOver(self.game))
+
+    def check_victory(self):
         if self.collected_files == self.total_files:
 
             if self.player.rect.colliderect(
                 self.map.exit_rect
             ):
-
-                self.game.change_state(
-                    Victory(self.game)
-                )
+                self.game.change_state(Victory(self.game))
 
     def draw(self, screen):
 
@@ -74,6 +80,16 @@ class Gameplay:
         self.map.draw(screen)
 
         self.player.draw(screen)
+
+        self.enemy.draw(screen)
+
+        pygame.draw.circle(
+            screen,
+            (255, 0, 0),
+            self.enemy.rect.center,
+            self.enemy.detection_radius,
+            1
+        )
 
         hud = self.font.render(
             f"FILES: {self.collected_files}/{self.total_files}",

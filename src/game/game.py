@@ -1,18 +1,21 @@
+
 import pygame
 from settings import *
+from state_manager import StateManager
 from states.menu import Menu
-from states.gameplay import Gameplay
 
 class Game:
     def __init__(self):
         self.screen = pygame.display.set_mode((WIDTH, HEIGHT))
         pygame.display.set_caption(TITLE)
+
         self.clock = pygame.time.Clock()
 
-        self.state = Menu(self)
+        self.state_manager = StateManager()
+        self.state_manager.set(Menu(self))
 
-    def change_state(self, new_state):
-        self.state = new_state
+    def change_state(self, state):
+        self.state_manager.set(state)
 
     def run(self):
         running = True
@@ -24,9 +27,9 @@ class Game:
                 if event.type == pygame.QUIT:
                     running = False
 
-                self.state.handle_event(event)
+                self.state_manager.handle_event(event)
 
-            self.state.update()
-            self.state.draw(self.screen)
+            self.state_manager.update()
+            self.state_manager.draw(self.screen)
 
             pygame.display.update()

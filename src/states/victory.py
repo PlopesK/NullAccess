@@ -25,9 +25,7 @@ class Victory:
 
                 from states.menu import Menu
 
-                self.game.change_state(
-                    Menu(self.game)
-                )
+                self.game.change_state(Menu(self.game))
 
     def update(self):
         pass
