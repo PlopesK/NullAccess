@@ -74,6 +74,28 @@ class Gameplay:
 
         intensity = 5
         return random.randint(-intensity, intensity), random.randint(-intensity, intensity)
+    
+    #Texto corrompido
+    def corrupt_text(self, text, intensity=0.3):
+        if self.alert_level == 0:
+            return text
+
+        if random.random() < 0.1:
+            return ""
+
+        chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789!@#$%&*"
+
+        result = ""
+
+        for c in text:
+            if c == " ":
+                result += " "
+            elif random.random() < intensity:
+                result += random.choice(chars)
+            else:
+                result += c
+
+        return result
 
     def update(self):
         self.player.update(self.map.walls)
@@ -129,7 +151,11 @@ class Gameplay:
 
         for df in self.map.datafiles:
             if not df.collected:
-                self.apply_camera(df.rect, (glitch_x, glitch_y))
+                pygame.draw.rect(
+                    screen,
+                    (0, 200 + random.randint(-20, 20), 255),
+                    self.apply_camera(df.rect, (glitch_x, glitch_y))
+                )
 
         color = (0, 255, 120) if self.map.all_collected() else (255, 80, 80)
 
@@ -148,10 +174,9 @@ class Gameplay:
 
             enemy.draw(screen, lambda r: self.apply_camera(r, (glitch_x, glitch_y)))
 
-        hud = self.font.render(
-            f"FILES: {self.collected_files}/{self.total_files}",
-            True,
-            WHITE
-        )
+        text = f"FILES: {self.collected_files}/{self.total_files}"
+        text = self.corrupt_text(text, intensity=0.4)
+
+        hud = self.font.render(text, True, WHITE)
 
         screen.blit(hud, (20, 20))
