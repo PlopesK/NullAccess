@@ -4,7 +4,8 @@ from settings import *
 from game.player import Player
 from game.map import Map
 from states.victory import Victory
-from enemy import Enemy
+from game.enemy import Enemy
+from camera import Camera
 
 class Gameplay:
     def __init__(self, game):
@@ -17,6 +18,8 @@ class Gameplay:
 
         self.player.rect.x = self.map.player_spawn[0]
         self.player.rect.y = self.map.player_spawn[1]
+
+        self.camera = Camera(self.game.width, self.game.height)
 
         self.enemies = []
 
@@ -52,8 +55,19 @@ class Gameplay:
 
                     self.collected_files += 1
 
+    #Câmera
+    def apply_camera(self, rect):
+        return pygame.Rect(
+            (rect.x - self.camera.x) * self.camera.zoom,
+            (rect.y - self.camera.y) * self.camera.zoom,
+            rect.width * self.camera.zoom,
+            rect.height * self.camera.zoom
+        )
+
     def update(self):
         self.player.update(self.map.walls)
+
+        self.camera.follow(self.player)
 
         for enemy in self.enemies:
             enemy.update(self.player, self.map.width, self.map.height)
@@ -71,6 +85,7 @@ class Gameplay:
 
                 from states.gameover import GameOver
                 self.game.change_state(GameOver(self.game))
+                return
 
     #Checagem de vitória
     def check_victory(self):
@@ -85,20 +100,29 @@ class Gameplay:
 
         screen.fill((15, 15, 25))
 
-        self.map.draw(screen)
+        for wall in self.map.walls:
+            pygame.draw.rect(screen, (25, 35, 55), self.apply_camera(wall))
 
-        self.player.draw(screen)
+        for df in self.map.datafiles:
+            if not df.collected:
+                pygame.draw.rect(screen, (0, 200, 255), self.apply_camera(df.rect))
+
+        color = (0, 255, 120) if self.map.all_collected() else (255, 80, 80)
+
+        pygame.draw.rect(screen, color, self.apply_camera(self.map.exit_rect))
+
+        self.player.draw(screen, self.apply_camera)
 
         for enemy in self.enemies:
             pygame.draw.circle(
                 screen,
                 (255, 0, 0),
-                enemy.rect.center,
-                150,
+                self.apply_camera(enemy.rect).center,
+                200,
                 1
             )
 
-            enemy.draw(screen)
+            enemy.draw(screen, self.apply_camera)
 
         hud = self.font.render(
             f"FILES: {self.collected_files}/{self.total_files}",

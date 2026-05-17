@@ -8,7 +8,7 @@ class Enemy:
         self.speed = 2
         self.chase_speed = 3
 
-        self.detection_radius = 150
+        self.detection_radius = 170
 
         # patrulha simples
         self.points = [
@@ -24,6 +24,7 @@ class Enemy:
 
     def patrol(self):
         target_x, target_y = self.points[self.current_point]
+        _ = target_y
 
         if self.rect.x < target_x:
             self.rect.x += self.speed
@@ -32,6 +33,7 @@ class Enemy:
 
         if abs(self.rect.x - target_x) < 5:
             self.current_point += 1
+
             if self.current_point >= len(self.points):
                 self.current_point = 0
 
@@ -66,5 +68,9 @@ class Enemy:
 
         self.clamp_to_world(world_width, world_height)
 
-    def draw(self, screen):
-        pygame.draw.rect(screen, (255, 50, 50), self.rect)
+    def draw(self, screen, apply_camera):
+        pygame.draw.rect(
+            screen,
+            (255, 50, 50),
+            apply_camera(self.rect)
+        )

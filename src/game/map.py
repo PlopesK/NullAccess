@@ -154,18 +154,4 @@ class Map:
         return all(df.collected for df in self.datafiles)
 
     def draw(self, screen):
-
-        for wall in self.walls:
-            pygame.draw.rect(screen, (25, 35, 55), wall)
-
-        for df in self.datafiles:
-            if not df.collected:
-                pygame.draw.rect(screen, (0, 200, 255), df.rect)
-
-        # COR DA SAÍDA
-        if self.all_collected():
-            color = (0, 255, 120)  # verde (liberada)
-        else:
-            color = (255, 80, 80)  # vermelho (bloqueada)
-
-        pygame.draw.rect(screen, color, self.exit_rect)
+        pass

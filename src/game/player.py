@@ -60,9 +60,9 @@ class Player:
     def update(self, walls):
         self.movement(walls)
 
-    def draw(self, screen):
+    def draw(self, screen, apply_camera):
         pygame.draw.rect(
             screen,
-            NEON_GREEN,
-            self.rect
+            (0, 255, 120),
+            apply_camera(self.rect)
         )

@@ -6,11 +6,11 @@ class DataFile:
 
         self.collected = False
 
-    def draw(self, screen):
+    def draw(self, screen, apply_camera):
         if not self.collected:
 
             pygame.draw.rect(
                 screen,
                 (0, 200, 255),
-                self.rect
+                apply_camera(self.rect)
             )
