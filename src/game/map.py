@@ -1,6 +1,7 @@
 import pygame
 import random
 import math
+
 from settings import *
 
 TILE_SIZE = 48
@@ -8,150 +9,170 @@ ENEMY_BORDER_MARGIN = 200
 
 class Map:
     def __init__(self, width, height):
-        self.walls = []
-        self.datafiles = []
-        self.enemies_spawns = []
-
-        self.exit_rect = None
-        self.player_spawn = (0, 0)
-
         self.width = width
         self.height = height
 
         self.grid_width = math.ceil(self.width / TILE_SIZE)
         self.grid_height = math.ceil(self.height / TILE_SIZE)
 
-        self.generate()
+        self.generate_valid_map()
 
-    # -----------------------------
-    # util
-    # -----------------------------
+    # UTIL
     def is_border(self, x, y):
-        return x == 0 or y == 0 or x == self.grid_width - 1 or y == self.grid_height - 1
+        return (
+            x == 0 or y == 0 or
+            x == self.grid_width - 1 or
+            y == self.grid_height - 1
+        )
 
-    def generate(self):
+    # FLOOD FILL (verificação jogável)
+    def flood_fill(self, grid, start):
+        stack = [start]
+        visited = set()
 
-        grid = [[0 for _ in range(self.grid_width)] for _ in range(self.grid_height)]
+        while stack:
+            x, y = stack.pop()
 
-        # 1. bordas = paredes
-        for y in range(self.grid_height):
-            for x in range(self.grid_width):
-                if self.is_border(x, y):
-                    grid[y][x] = 1
+            if (x, y) in visited:
+                continue
 
-        # 2. paredes aleatórias internas
-        for _ in range(int(self.grid_width * self.grid_height * 0.15)):
-            x = random.randint(1, self.grid_width - 2)
-            y = random.randint(1, self.grid_height - 2)
-            grid[y][x] = 1
+            visited.add((x, y))
 
-        # 3. spawn seguro do player
+            for dx, dy in [(1,0), (-1,0), (0,1), (0,-1)]:
+                nx, ny = x + dx, y + dy
+
+                if 0 <= nx < self.grid_width and 0 <= ny < self.grid_height:
+                    if grid[ny][nx] == 0:
+                        stack.append((nx, ny))
+
+        return visited
+
+    # GERA UM MAPA VÁLIDO
+    def generate_valid_map(self):
+
         while True:
-            px = random.randint(1, self.grid_width - 2)
-            py = random.randint(1, self.grid_height - 2)
+            grid = [[0 for _ in range(self.grid_width)] for _ in range(self.grid_height)]
 
-            if grid[py][px] == 0:
-                self.player_spawn = (px * TILE_SIZE, py * TILE_SIZE)
-                break
+            # bordas
+            for y in range(self.grid_height):
+                for x in range(self.grid_width):
+                    if self.is_border(x, y):
+                        grid[y][x] = 1
 
-        # 4. saída (longe do player)
-        while True:
-            ex = random.randint(1, self.grid_width - 2)
-            ey = random.randint(1, self.grid_height - 2)
+            # paredes aleatórias
+            for _ in range(int(self.grid_width * self.grid_height * 0.15)):
+                x = random.randint(1, self.grid_width - 2)
+                y = random.randint(1, self.grid_height - 2)
+                grid[y][x] = 1
 
-            if grid[ey][ex] == 0:
-                self.exit_rect = pygame.Rect(
-                    ex * TILE_SIZE,
-                    ey * TILE_SIZE,
-                    TILE_SIZE,
-                    TILE_SIZE
-                )
-                break
-
-        # 5. datafiles
-        self.datafiles = []
-
-        for _ in range(5):
+            # player spawn
             while True:
-                dx = random.randint(1, self.grid_width - 2)
-                dy = random.randint(1, self.grid_height - 2)
-
-                if grid[dy][dx] == 0:
-                    rect = pygame.Rect(
-                        dx * TILE_SIZE + 10,
-                        dy * TILE_SIZE + 10,
-                        28,
-                        28
-                    )
-
-                    self.datafiles.append(type("D", (), {"rect": rect, "collected": False}))
+                px = random.randint(1, self.grid_width - 2)
+                py = random.randint(1, self.grid_height - 2)
+                if grid[py][px] == 0:
+                    self.player_spawn = (px * TILE_SIZE, py * TILE_SIZE)
                     break
 
-        # 6. inimigos (até 2)
-        self.enemies_spawns = []
+            # flood fill base
+            reachable = self.flood_fill(grid, (px, py))
 
-        min_distance_player = 250
-        enemy_min_distance = 200
+            # saída
+            ex, ey = random.randint(1, self.grid_width - 2), random.randint(1, self.grid_height - 2)
 
-        for _ in range(2):
-            while True:
-                margin_tiles = ENEMY_BORDER_MARGIN // TILE_SIZE
+            if grid[ey][ex] == 1:
+                continue
 
-                ex = random.randint(
-                    margin_tiles,
-                    self.grid_width - margin_tiles - 1
+            if (ex, ey) not in reachable:
+                continue
+
+            self.exit_rect = pygame.Rect(
+                ex * TILE_SIZE,
+                ey * TILE_SIZE,
+                TILE_SIZE,
+                TILE_SIZE
+            )
+
+            # datafiles
+            datafiles = []
+            temp_tiles = list(reachable)
+
+            random.shuffle(temp_tiles)
+
+            for (x, y) in temp_tiles:
+                if len(datafiles) >= 5:
+                    break
+
+                rect = pygame.Rect(
+                    x * TILE_SIZE + 10,
+                    y * TILE_SIZE + 10,
+                    28,
+                    28
                 )
 
-                ey = random.randint(
-                    margin_tiles,
-                    self.grid_height - margin_tiles - 1
-                )
+                datafiles.append(type("D", (), {
+                    "rect": rect,
+                    "collected": False
+                }))
 
-                x = ex * TILE_SIZE
-                y = ey * TILE_SIZE
+            # garante quantidade mínima
+            if len(datafiles) < 5:
+                continue
 
-                # precisa ser chão
-                if grid[ey][ex] != 0:
+            self.datafiles = datafiles
+
+            # inimigos (opcional simples)
+            self.enemies_spawns = []
+
+            enemy_candidates = list(reachable)
+            random.shuffle(enemy_candidates)
+
+            px, py = self.player_spawn
+
+            for (x, y) in enemy_candidates:
+                wx, wy = x * TILE_SIZE, y * TILE_SIZE
+
+                dist = ((wx - px) ** 2 + (wy - py) ** 2) ** 0.5
+
+                if dist < 250:
                     continue
 
-                # distância do player
-                px, py = self.player_spawn
-                dist_player = ((x - px) ** 2 + (y - py) ** 2) ** 0.5
+                self.enemies_spawns.append((wx, wy))
 
-                if dist_player < min_distance_player:
-                    continue
+                if len(self.enemies_spawns) >= 2:
+                    break
 
-                # distância de outros inimigos
-                too_close = False
-                for sx, sy in self.enemies_spawns:
-                    dist_enemy = ((x - sx) ** 2 + (y - sy) ** 2) ** 0.5
-                    if dist_enemy < enemy_min_distance:
-                        too_close = True
-                        break
+            # paredes finais
+            self.walls = []
 
-                if too_close:
-                    continue
-
-                self.enemies_spawns.append((x, y))
-                break
-
-        # 7. construir paredes
-        self.walls = []
-
-        for y in range(self.grid_height):
-            for x in range(self.grid_width):
-                if grid[y][x] == 1:
-                    self.walls.append(
-                        pygame.Rect(
-                            x * TILE_SIZE,
-                            y * TILE_SIZE,
-                            TILE_SIZE,
-                            TILE_SIZE
+            for y in range(self.grid_height):
+                for x in range(self.grid_width):
+                    if grid[y][x] == 1:
+                        self.walls.append(
+                            pygame.Rect(
+                                x * TILE_SIZE,
+                                y * TILE_SIZE,
+                                TILE_SIZE,
+                                TILE_SIZE
+                            )
                         )
-                    )
 
+            # se chegou aqui → mapa válido
+            self.grid = grid
+            return
+
+    # -----------------------------
     def all_collected(self):
         return all(df.collected for df in self.datafiles)
 
+    # -----------------------------
     def draw(self, screen):
-        pass
+        for wall in self.walls:
+            pygame.draw.rect(screen, (25, 35, 55), wall)
+
+        for df in self.datafiles:
+            if not df.collected:
+                pygame.draw.rect(screen, (0, 200, 255), df.rect)
+
+        color = (0, 255, 120) if self.all_collected() else (255, 80, 80)
+
+        pygame.draw.rect(screen, color, self.exit_rect)

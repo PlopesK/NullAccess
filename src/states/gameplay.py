@@ -6,7 +6,7 @@ from game.player import Player
 from game.map import Map
 from states.victory import Victory
 from game.enemy import Enemy
-from camera import Camera
+from utils.camera import Camera
 
 class Gameplay:
     def __init__(self, game):
@@ -25,7 +25,7 @@ class Gameplay:
         self.enemies = []
 
         for spawn in self.map.enemies_spawns:
-            self.enemies.append(Enemy(spawn[0], spawn[1]))
+            self.enemies.append(Enemy(spawn[0], spawn[1], self.map))
 
         self.font = pygame.font.SysFont(
             "consolas",
