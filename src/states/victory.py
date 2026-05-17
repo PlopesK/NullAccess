@@ -22,10 +22,10 @@ class Victory:
         if event.type == pygame.KEYDOWN:
 
             if event.key == pygame.K_SPACE:
-
                 from states.menu import Menu
-
                 self.game.change_state(Menu(self.game))
+            if event.key == pygame.K_ESCAPE:
+                pygame.quit()
 
     def update(self):
         pass
@@ -46,5 +46,12 @@ class Victory:
             WHITE
         )
 
+        esc = self.font_small.render(
+            "ESC - QUIT",
+            True,
+            WHITE
+        )
+
         screen.blit(title, (320, 280))
         screen.blit(text, (410, 380))
+        screen.blit(esc, (410, 420))
