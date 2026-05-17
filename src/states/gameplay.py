@@ -56,7 +56,7 @@ class Gameplay:
         self.player.update(self.map.walls)
 
         for enemy in self.enemies:
-            enemy.update(self.player)
+            enemy.update(self.player, self.map.width, self.map.height)
 
         self.collect_files()
 
@@ -64,6 +64,7 @@ class Gameplay:
 
         self.check_death()
 
+    #Checagem de morte
     def check_death(self):
         for enemy in self.enemies:
             if self.player.rect.colliderect(enemy.rect):
@@ -71,6 +72,7 @@ class Gameplay:
                 from states.gameover import GameOver
                 self.game.change_state(GameOver(self.game))
 
+    #Checagem de vitória
     def check_victory(self):
         if self.collected_files == self.total_files:
 

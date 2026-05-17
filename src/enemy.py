@@ -45,14 +45,26 @@ class Enemy:
             self.rect.y += self.chase_speed
         elif player.rect.y < self.rect.y:
             self.rect.y -= self.chase_speed
+    
+    def clamp_to_world(self, width, height):
+        if self.rect.left < 0:
+            self.rect.left = 0
+        if self.rect.right > width:
+            self.rect.right = width
+        if self.rect.top < 0:
+            self.rect.top = 0
+        if self.rect.bottom > height:
+            self.rect.bottom = height
 
-    def update(self, player):
+    def update(self, player, world_width, world_height):
         dist = self.distance_to_player(player)
 
         if dist < self.detection_radius:
             self.chase(player)
         else:
             self.patrol()
+
+        self.clamp_to_world(world_width, world_height)
 
     def draw(self, screen):
         pygame.draw.rect(screen, (255, 50, 50), self.rect)

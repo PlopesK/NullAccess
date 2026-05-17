@@ -4,6 +4,7 @@ import math
 from settings import *
 
 TILE_SIZE = 48
+ENEMY_BORDER_MARGIN = 200
 
 class Map:
     def __init__(self, width, height):
@@ -91,13 +92,20 @@ class Map:
 
         min_distance_player = 250
         enemy_min_distance = 200
-        border_margin = 2
 
         for _ in range(2):
             while True:
+                margin_tiles = ENEMY_BORDER_MARGIN // TILE_SIZE
 
-                ex = random.randint(border_margin, self.grid_width - border_margin - 1)
-                ey = random.randint(border_margin, self.grid_height - border_margin - 1)
+                ex = random.randint(
+                    margin_tiles,
+                    self.grid_width - margin_tiles - 1
+                )
+
+                ey = random.randint(
+                    margin_tiles,
+                    self.grid_height - margin_tiles - 1
+                )
 
                 x = ex * TILE_SIZE
                 y = ey * TILE_SIZE

@@ -16,6 +16,8 @@ class GameOver:
 
             if event.key == pygame.K_SPACE:
                 self.game.change_state(Menu(self.game))
+            if event.key == pygame.K_ESCAPE:
+                pygame.quit()
 
     def update(self):
         pass
@@ -36,5 +38,12 @@ class GameOver:
             (255, 255, 255)
         )
 
+        esc = self.font_small.render(
+            "ESC - QUIT", 
+            True, 
+            (255, 255, 255)
+        )
+
         screen.blit(title, (250, 280))
         screen.blit(text, (360, 380))
+        screen.blit(esc, (360, 420))
