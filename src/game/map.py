@@ -1,5 +1,6 @@
 import pygame
 import random
+import math
 from settings import *
 
 TILE_SIZE = 48
@@ -16,8 +17,8 @@ class Map:
         self.width = width
         self.height = height
 
-        self.grid_width = self.width // TILE_SIZE
-        self.grid_height = self.height // TILE_SIZE
+        self.grid_width = math.ceil(self.width / TILE_SIZE)
+        self.grid_height = math.ceil(self.height / TILE_SIZE)
 
         self.generate()
 
@@ -88,18 +89,20 @@ class Map:
         # 6. inimigos (até 2)
         self.enemies_spawns = []
 
-        min_distance = 250  # do player
-        enemy_min_distance = 200  # entre inimigos
+        min_distance_player = 250
+        enemy_min_distance = 200
+        border_margin = 2
 
         for _ in range(2):
             while True:
-                ex = random.randint(1, self.grid_width - 2)
-                ey = random.randint(1, self.grid_height - 2)
+
+                ex = random.randint(border_margin, self.grid_width - border_margin - 1)
+                ey = random.randint(border_margin, self.grid_height - border_margin - 1)
 
                 x = ex * TILE_SIZE
                 y = ey * TILE_SIZE
 
-                # checar se é chão
+                # precisa ser chão
                 if grid[ey][ex] != 0:
                     continue
 
@@ -107,7 +110,7 @@ class Map:
                 px, py = self.player_spawn
                 dist_player = ((x - px) ** 2 + (y - py) ** 2) ** 0.5
 
-                if dist_player < min_distance:
+                if dist_player < min_distance_player:
                     continue
 
                 # distância de outros inimigos
@@ -119,7 +122,7 @@ class Map:
                         break
 
                 if too_close:
-                        continue
+                    continue
 
                 self.enemies_spawns.append((x, y))
                 break
