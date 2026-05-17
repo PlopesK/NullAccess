@@ -11,14 +11,17 @@ class Gameplay:
 
         self.game = game
 
-        self.map = Map()
+        self.map = Map(self.game.width, self.game.height)
 
         self.player = Player()
 
         self.player.rect.x = self.map.player_spawn[0]
         self.player.rect.y = self.map.player_spawn[1]
 
-        self.enemy = Enemy(300, 300)
+        self.enemies = []
+
+        for spawn in self.map.enemies_spawns:
+            self.enemies.append(Enemy(spawn[0], spawn[1]))
 
         self.font = pygame.font.SysFont(
             "consolas",
@@ -32,6 +35,7 @@ class Gameplay:
         )
 
     def handle_event(self, event):
+        _ = event
         pass
 
     def collect_files(self):
@@ -51,7 +55,8 @@ class Gameplay:
     def update(self):
         self.player.update(self.map.walls)
 
-        self.enemy.update(self.player)
+        for enemy in self.enemies:
+            enemy.update(self.player)
 
         self.collect_files()
 
@@ -60,10 +65,11 @@ class Gameplay:
         self.check_death()
 
     def check_death(self):
-        if self.player.rect.colliderect(self.enemy.rect):
-            from states.gameover import GameOver
+        for enemy in self.enemies:
+            if self.player.rect.colliderect(enemy.rect):
 
-            self.game.change_state(GameOver(self.game))
+                from states.gameover import GameOver
+                self.game.change_state(GameOver(self.game))
 
     def check_victory(self):
         if self.collected_files == self.total_files:
@@ -81,15 +87,16 @@ class Gameplay:
 
         self.player.draw(screen)
 
-        self.enemy.draw(screen)
+        for enemy in self.enemies:
+            pygame.draw.circle(
+                screen,
+                (255, 0, 0),
+                enemy.rect.center,
+                150,
+                1
+            )
 
-        pygame.draw.circle(
-            screen,
-            (255, 0, 0),
-            self.enemy.rect.center,
-            self.enemy.detection_radius,
-            1
-        )
+            enemy.draw(screen)
 
         hud = self.font.render(
             f"FILES: {self.collected_files}/{self.total_files}",

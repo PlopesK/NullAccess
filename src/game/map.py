@@ -1,102 +1,160 @@
 import pygame
-
+import random
 from settings import *
-from game.datafiles import DataFile
 
-TILE_SIZE = 64
-
-MAP = [
-    "####################",
-    "#....D............E#",
-    "#..######..........#",
-    "#..#......D........#",
-    "#..#.....P.........#",
-    "#.........D...######",
-    "####################"
-]
+TILE_SIZE = 48
 
 class Map:
-    def __init__(self):
+    def __init__(self, width, height):
         self.walls = []
-
         self.datafiles = []
+        self.enemies_spawns = []
 
         self.exit_rect = None
+        self.player_spawn = (0, 0)
 
-        self.player_spawn = (300, 300)
+        self.width = width
+        self.height = height
 
-        self.generate_map()
+        self.grid_width = self.width // TILE_SIZE
+        self.grid_height = self.height // TILE_SIZE
 
-    def generate_map(self):
+        self.generate()
 
-        for row_index, row in enumerate(MAP):
+    # -----------------------------
+    # util
+    # -----------------------------
+    def is_border(self, x, y):
+        return x == 0 or y == 0 or x == self.grid_width - 1 or y == self.grid_height - 1
 
-            for col_index, tile in enumerate(row):
+    def generate(self):
 
-                x = col_index * TILE_SIZE
-                y = row_index * TILE_SIZE
+        grid = [[0 for _ in range(self.grid_width)] for _ in range(self.grid_height)]
 
-                if tile == "#":
+        # 1. bordas = paredes
+        for y in range(self.grid_height):
+            for x in range(self.grid_width):
+                if self.is_border(x, y):
+                    grid[y][x] = 1
 
-                    wall = pygame.Rect(
-                        x,
-                        y,
-                        TILE_SIZE,
-                        TILE_SIZE
+        # 2. paredes aleatórias internas
+        for _ in range(int(self.grid_width * self.grid_height * 0.15)):
+            x = random.randint(1, self.grid_width - 2)
+            y = random.randint(1, self.grid_height - 2)
+            grid[y][x] = 1
+
+        # 3. spawn seguro do player
+        while True:
+            px = random.randint(1, self.grid_width - 2)
+            py = random.randint(1, self.grid_height - 2)
+
+            if grid[py][px] == 0:
+                self.player_spawn = (px * TILE_SIZE, py * TILE_SIZE)
+                break
+
+        # 4. saída (longe do player)
+        while True:
+            ex = random.randint(1, self.grid_width - 2)
+            ey = random.randint(1, self.grid_height - 2)
+
+            if grid[ey][ex] == 0:
+                self.exit_rect = pygame.Rect(
+                    ex * TILE_SIZE,
+                    ey * TILE_SIZE,
+                    TILE_SIZE,
+                    TILE_SIZE
+                )
+                break
+
+        # 5. datafiles
+        self.datafiles = []
+
+        for _ in range(5):
+            while True:
+                dx = random.randint(1, self.grid_width - 2)
+                dy = random.randint(1, self.grid_height - 2)
+
+                if grid[dy][dx] == 0:
+                    rect = pygame.Rect(
+                        dx * TILE_SIZE + 10,
+                        dy * TILE_SIZE + 10,
+                        28,
+                        28
                     )
 
-                    self.walls.append(wall)
+                    self.datafiles.append(type("D", (), {"rect": rect, "collected": False}))
+                    break
 
-                elif tile == "D":
+        # 6. inimigos (até 2)
+        self.enemies_spawns = []
 
-                    datafile = DataFile(
-                        x + 16,
-                        y + 16
+        min_distance = 250  # do player
+        enemy_min_distance = 200  # entre inimigos
+
+        for _ in range(2):
+            while True:
+                ex = random.randint(1, self.grid_width - 2)
+                ey = random.randint(1, self.grid_height - 2)
+
+                x = ex * TILE_SIZE
+                y = ey * TILE_SIZE
+
+                # checar se é chão
+                if grid[ey][ex] != 0:
+                    continue
+
+                # distância do player
+                px, py = self.player_spawn
+                dist_player = ((x - px) ** 2 + (y - py) ** 2) ** 0.5
+
+                if dist_player < min_distance:
+                    continue
+
+                # distância de outros inimigos
+                too_close = False
+                for sx, sy in self.enemies_spawns:
+                    dist_enemy = ((x - sx) ** 2 + (y - sy) ** 2) ** 0.5
+                    if dist_enemy < enemy_min_distance:
+                        too_close = True
+                        break
+
+                if too_close:
+                        continue
+
+                self.enemies_spawns.append((x, y))
+                break
+
+        # 7. construir paredes
+        self.walls = []
+
+        for y in range(self.grid_height):
+            for x in range(self.grid_width):
+                if grid[y][x] == 1:
+                    self.walls.append(
+                        pygame.Rect(
+                            x * TILE_SIZE,
+                            y * TILE_SIZE,
+                            TILE_SIZE,
+                            TILE_SIZE
+                        )
                     )
 
-                    self.datafiles.append(datafile)
-
-                elif tile == "E":
-
-                    self.exit_rect = pygame.Rect(
-                        x,
-                        y,
-                        TILE_SIZE,
-                        TILE_SIZE
-                    )
-
-                elif tile == "P":
-
-                    self.player_spawn = (
-                        x + 12,
-                        y + 12
-                    )
+    def all_collected(self):
+        return all(df.collected for df in self.datafiles)
 
     def draw(self, screen):
 
         for wall in self.walls:
+            pygame.draw.rect(screen, (25, 35, 55), wall)
 
-            pygame.draw.rect(
-                screen,
-                (25, 35, 55),
-                wall
-            )
+        for df in self.datafiles:
+            if not df.collected:
+                pygame.draw.rect(screen, (0, 200, 255), df.rect)
 
-        for datafile in self.datafiles:
-            datafile.draw(screen)
+        # COR DA SAÍDA
+        if self.all_collected():
+            color = (0, 255, 120)  # verde (liberada)
+        else:
+            color = (255, 80, 80)  # vermelho (bloqueada)
 
-        color = (255, 50, 50)
-
-        all_collected = all(
-            datafile.collected
-            for datafile in self.datafiles
-        )
-
-        if all_collected:
-            color = (0, 255, 120)
-
-        pygame.draw.rect(
-            screen,
-            color,
-            self.exit_rect
-        )
+        pygame.draw.rect(screen, color, self.exit_rect)

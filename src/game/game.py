@@ -6,7 +6,16 @@ from states.menu import Menu
 
 class Game:
     def __init__(self):
-        self.screen = pygame.display.set_mode((WIDTH, HEIGHT))
+
+        pygame.init()
+
+        self.screen = pygame.display.set_mode(
+            (0, 0), pygame.FULLSCREEN
+        )
+
+        self.width = self.screen.get_width()
+        self.height = self.screen.get_height()
+
         pygame.display.set_caption(TITLE)
 
         self.clock = pygame.time.Clock()
