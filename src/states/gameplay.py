@@ -27,10 +27,7 @@ class Gameplay:
         for spawn in self.map.enemies_spawns:
             self.enemies.append(Enemy(spawn[0], spawn[1], self.map))
 
-        self.font = pygame.font.SysFont(
-            "consolas",
-            28
-        )
+        self.font = get_font(28)
 
         self.collected_files = 0
 

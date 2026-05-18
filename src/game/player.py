@@ -3,7 +3,7 @@ import pygame
 class Player:
     def __init__(self):
 
-        self.rect = pygame.Rect(100, 100, 40, 40)
+        self.rect = pygame.Rect(100, 100, 28, 28)
 
         self.speed = 5
 

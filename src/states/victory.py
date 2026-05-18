@@ -7,16 +7,6 @@ class Victory:
 
         self.game = game
 
-        self.font_big = pygame.font.SysFont(
-            "consolas",
-            64
-        )
-
-        self.font_small = pygame.font.SysFont(
-            "consolas",
-            28
-        )
-
     def handle_event(self, event):
 
         if event.type == pygame.KEYDOWN:
@@ -34,19 +24,19 @@ class Victory:
 
         screen.fill((10, 20, 10))
 
-        title = self.font_big.render(
+        title = FONT_BIG.render(
             "SYSTEM BREACHED",
             True,
             NEON_GREEN
         )
 
-        text = self.font_small.render(
+        text = FONT_MEDIUM.render(
             "SPACE - RETURN TO MENU",
             True,
             WHITE
         )
 
-        esc = self.font_small.render(
+        esc = FONT_MEDIUM.render(
             "ESC - QUIT",
             True,
             WHITE

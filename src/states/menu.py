@@ -5,7 +5,6 @@ from states.gameplay import Gameplay
 class Menu:
     def __init__(self, game):
         self.game = game
-        self.font = pygame.font.SysFont("consolas", 40)
 
     def handle_event(self, event):
         if event.type == pygame.KEYDOWN:
@@ -20,9 +19,9 @@ class Menu:
     def draw(self, screen):
         screen.fill(BLACK)
 
-        title = self.font.render("ACCESS://NULL", True, NEON_GREEN)
-        text = self.font.render("SPACE - START / WASD - MOVE", True, WHITE)
-        esc = self.font.render("ESC - QUIT", True, WHITE)
+        title = FONT_BIG.render("ACCESS://NULL", True, NEON_GREEN)
+        text = FONT_MEDIUM.render("SPACE - START / WASD - MOVE", True, WHITE)
+        esc = FONT_MEDIUM.render("ESC - QUIT", True, WHITE)
 
         screen.blit(title, (450, 250))
         screen.blit(text, (350, 350))

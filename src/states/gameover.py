@@ -7,9 +7,6 @@ class GameOver:
 
         self.game = game
 
-        self.font_big = pygame.font.SysFont("consolas", 64)
-        self.font_small = pygame.font.SysFont("consolas", 28)
-
     def handle_event(self, event):
 
         if event.type == pygame.KEYDOWN:
@@ -26,19 +23,19 @@ class GameOver:
 
         screen.fill((30, 0, 0))
 
-        title = self.font_big.render(
+        title = FONT_BIG.render(
             "SYSTEM COMPROMISED",
             True,
             (255, 80, 80)
         )
 
-        text = self.font_small.render(
+        text = FONT_MEDIUM.render(
             "SPACE - RETURN TO MENU",
             True,
             (255, 255, 255)
         )
 
-        esc = self.font_small.render(
+        esc = FONT_MEDIUM.render(
             "ESC - QUIT", 
             True, 
             (255, 255, 255)
