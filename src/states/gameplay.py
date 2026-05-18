@@ -1,5 +1,6 @@
 import pygame
 import random
+import math
 
 from settings import *
 from game.player import Player
@@ -14,6 +15,10 @@ class Gameplay:
         self.game = game
 
         self.map = Map(self.game.width, self.game.height)
+
+        self.pulse_time = 0
+
+        self.tunnel_surface = pygame.Surface((self.game.width, self.game.height), pygame.SRCALPHA)
 
         self.player = Player()
 
@@ -93,8 +98,88 @@ class Gameplay:
                 result += c
 
         return result
+    
+    #Animação do fundo
+    def draw_vignette(self, screen):
+        pulse = math.sin(self.pulse_time)
+
+        # fundo levemente mais claro (respirando)
+        base = 20 + int(pulse * 5)
+        screen.fill((base, base, base + 8))
+
+        vignette = pygame.Surface((self.game.width, self.game.height), pygame.SRCALPHA)
+
+        layers = 10
+
+        for i in range(layers):
+            t = i / layers
+
+            # alpha cresce MUITO mais forte
+            alpha = int((80 + self.alert_level * 80) * (t * t))
+
+            margin = i * 35
+
+            pygame.draw.rect(
+                vignette,
+                (0, 0, 0, alpha),
+                (
+                    margin,
+                    margin,
+                    self.game.width - margin * 2,
+                    self.game.height - margin * 2
+                ),
+                border_radius=30
+            )
+
+        screen.blit(vignette, (0, 0))
+
+    def draw_tunnel(self, screen):
+        self.tunnel_surface.fill((0, 0, 0, 255))
+
+        # posição do player na tela (centro da visão)
+        px = self.game.width // 2
+        py = self.game.height // 2
+
+        # raio base da visão
+        base_radius = 180
+
+        # perseguição = visão menor
+        if self.alert_level > 0:
+            base_radius = 120
+
+        # leve pulsação (respiração)
+        pulse = math.sin(self.pulse_time)
+        radius = base_radius + int(pulse * 10)
+
+        # camada de “abertura”
+        layers = 6
+
+        for i in range(layers):
+            t = i / layers
+
+            r = int(radius * (1 - t * 0.6))
+            alpha = int(200 * (t * t))
+
+            pygame.draw.circle(
+                self.tunnel_surface,
+                (0, 0, 0, alpha),
+                (px, py),
+                r
+            )
+
+            if self.alert_level > 0:
+                radius -= 10
+
+        # efeito final: mistura na tela
+        screen.blit(self.tunnel_surface, (0, 0), special_flags=pygame.BLEND_RGBA_SUB)
+
+    # -------------------------
+    # update
+    # -------------------------
 
     def update(self):
+        self.pulse_time += 0.03
+
         self.player.update(self.map.walls)
 
         self.camera.follow(self.player)
@@ -106,6 +191,11 @@ class Gameplay:
 
             if enemy.distance_to_player(self.player) < enemy.detection_radius:
                 self.alert_level = 1
+
+        if self.alert_level > 0:
+            self.camera.zoom = 1.8
+        else:
+            self.camera.zoom = 1.5
 
         self.collect_files()
 
@@ -133,7 +223,8 @@ class Gameplay:
 
     def draw(self, screen):
 
-        screen.fill((15, 15, 25))
+        self.draw_vignette(screen)
+        self.draw_tunnel(screen)
         glitch_x, glitch_y = self.get_glitch_offset()
 
         if self.alert_level > 0:
@@ -165,7 +256,7 @@ class Gameplay:
                 screen,
                 (255, 0, 0),
                 self.apply_camera(enemy.rect).center,
-                200,
+                int(enemy.detection_radius * self.camera.zoom),
                 1
             )
 
