@@ -167,9 +167,6 @@ class Gameplay:
                 r
             )
 
-            if self.alert_level > 0:
-                radius -= 10
-
         # efeito final: mistura na tela
         screen.blit(self.tunnel_surface, (0, 0), special_flags=pygame.BLEND_RGBA_SUB)
 
@@ -181,6 +178,9 @@ class Gameplay:
         self.pulse_time += 0.03
 
         self.player.update(self.map.walls)
+
+        for df in self.map.datafiles:
+            df.update()
 
         self.camera.follow(self.player)
 
@@ -238,12 +238,7 @@ class Gameplay:
             pygame.draw.rect(screen, (25, 35, 55), self.apply_camera(wall, (glitch_x, glitch_y)))
 
         for df in self.map.datafiles:
-            if not df.collected:
-                pygame.draw.rect(
-                    screen,
-                    (0, 200 + random.randint(-20, 20), 255),
-                    self.apply_camera(df.rect, (glitch_x, glitch_y))
-                )
+            df.draw(screen, lambda r: self.apply_camera(r, (glitch_x, glitch_y)))
 
         color = (0, 255, 120) if self.map.all_collected() else (255, 80, 80)
 

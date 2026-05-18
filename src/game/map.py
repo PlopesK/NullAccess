@@ -3,6 +3,7 @@ import random
 import math
 
 from settings import *
+from game.datafiles import DataFile
 
 TILE_SIZE = 48
 ENEMY_BORDER_MARGIN = 200
@@ -16,6 +17,7 @@ class Map:
         self.grid_height = math.ceil(self.height / TILE_SIZE)
 
         self.generate_valid_map()
+        self.frames = self.datafile_frames()
 
     # UTIL
     def is_border(self, x, y):
@@ -46,6 +48,16 @@ class Map:
                         stack.append((nx, ny))
 
         return visited
+    
+    def datafile_frames(self):
+        frames = []
+
+        for i in range(1, 5):
+            img = pygame.image.load(f"src/assets/datafile/datafile{i}.png").convert_alpha()
+            img = pygame.transform.scale(img, (32, 32))
+            frames.append(img)
+
+        return frames
 
     # GERA UM MAPA VÁLIDO
     def generate_valid_map(self):
@@ -92,33 +104,33 @@ class Map:
                 TILE_SIZE
             )
 
-            # datafiles
-            datafiles = []
-            temp_tiles = list(reachable)
+            self.datafiles = []
+            attempts = 0
 
-            random.shuffle(temp_tiles)
+            for _ in range(5):
+                placed = False
 
-            for (x, y) in temp_tiles:
-                if len(datafiles) >= 5:
-                    break
+                while not placed and attempts < 500:
+                    attempts += 1
 
-                rect = pygame.Rect(
-                    x * TILE_SIZE + 10,
-                    y * TILE_SIZE + 10,
-                    28,
-                    28
-                )
+                    dx = random.randint(1, self.grid_width - 2)
+                    dy = random.randint(1, self.grid_height - 2)
 
-                datafiles.append(type("D", (), {
-                    "rect": rect,
-                    "collected": False
-                }))
+                    if grid[dy][dx] == 1:
+                        continue
 
-            # garante quantidade mínima
-            if len(datafiles) < 5:
-                continue
+                    frames = self.datafile_frames()
 
-            self.datafiles = datafiles
+                    rect = pygame.Rect(
+                        dx * TILE_SIZE + 8,
+                        dy * TILE_SIZE + 8,
+                        36,
+                        36
+                    )
+
+                    df = DataFile(rect.x, rect.y, frames)
+                    self.datafiles.append(df)
+                    placed = True
 
             # inimigos (opcional simples)
             self.enemies_spawns = []
@@ -168,10 +180,6 @@ class Map:
     def draw(self, screen):
         for wall in self.walls:
             pygame.draw.rect(screen, (25, 35, 55), wall)
-
-        for df in self.datafiles:
-            if not df.collected:
-                pygame.draw.rect(screen, (0, 200, 255), df.rect)
 
         color = (0, 255, 120) if self.all_collected() else (255, 80, 80)
 
