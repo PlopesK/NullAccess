@@ -1,6 +1,7 @@
 import pygame
 import random
 
+from utils.paths import resource_path
 from settings import *
 from states.gameplay import Gameplay
 
@@ -9,7 +10,7 @@ class Menu:
     def __init__(self, game):
         self.game = game
 
-        self.monitor_img = pygame.image.load("assets/ui/logo.png").convert_alpha()
+        self.monitor_img = pygame.image.load(resource_path("assets/ui/logo.png")).convert_alpha()
         self.monitor_img = pygame.transform.scale(self.monitor_img, (698, 275))
 
         self.noise_timer = 0

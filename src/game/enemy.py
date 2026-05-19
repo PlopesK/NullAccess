@@ -1,6 +1,7 @@
 import pygame
 import random
 from utils.pathfinding import bfs
+from utils.paths import resource_path
 
 TILE_SIZE = 48
 
@@ -21,10 +22,10 @@ class Enemy:
         # -------------------------
 
         self.frames = [
-            pygame.image.load("assets/enemy/enemy1.png").convert_alpha(),
-            pygame.image.load("assets/enemy/enemy2.png").convert_alpha(),
-            pygame.image.load("assets/enemy/enemy1.png").convert_alpha(),
-            pygame.image.load("assets/enemy/enemy3.png").convert_alpha()
+            pygame.image.load(resource_path("assets/enemy/enemy1.png")).convert_alpha(),
+            pygame.image.load(resource_path("assets/enemy/enemy2.png")).convert_alpha(),
+            pygame.image.load(resource_path("assets/enemy/enemy1.png")).convert_alpha(),
+            pygame.image.load(resource_path("assets/enemy/enemy3.png")).convert_alpha()
         ]
 
         self.frames = [

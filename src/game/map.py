@@ -2,6 +2,7 @@ import pygame
 import random
 import math
 
+from utils.paths import resource_path
 from settings import *
 from game.datafiles import DataFile
 from game.walls import Wall
@@ -62,7 +63,7 @@ class Map:
     def load_wall_sprites(self):
         sprites = []
         for i in range(1, 3):
-            img = pygame.image.load(f"assets/walls/wall{i}.png").convert_alpha()
+            img = pygame.image.load(resource_path(f"assets/walls/wall{i}.png")).convert_alpha()
             img = pygame.transform.scale(img, (72, 72))
             sprites.append(img)
         return sprites
@@ -70,7 +71,7 @@ class Map:
     def datafile_frames(self):
         frames = []
         for i in range(1, 5):
-            img = pygame.image.load(f"assets/datafile/datafile{i}.png").convert_alpha()
+            img = pygame.image.load(resource_path(f"assets/datafile/datafile{i}.png")).convert_alpha()
             img = pygame.transform.scale(img, (32, 32))
             frames.append(img)
         return frames

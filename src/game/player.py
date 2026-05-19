@@ -1,5 +1,7 @@
 import pygame
 
+from utils.paths import resource_path
+
 class Player:
     def __init__(self):
 
@@ -12,16 +14,16 @@ class Player:
         # -------------------------
 
         self.spawn_frames = [
-            pygame.image.load("assets/player/spawn/spawn1.png").convert_alpha(),
-            pygame.image.load("assets/player/spawn/spawn2.png").convert_alpha(),
-            pygame.image.load("assets/player/spawn/spawn3.png").convert_alpha()
+            pygame.image.load(resource_path("assets/player/spawn/spawn1.png")).convert_alpha(),
+            pygame.image.load(resource_path("assets/player/spawn/spawn2.png")).convert_alpha(),
+            pygame.image.load(resource_path("assets/player/spawn/spawn3.png")).convert_alpha()
         ]
 
         self.idle_frames = [
-            pygame.image.load("assets/player/idle/idle1.png").convert_alpha(),
-            pygame.image.load("assets/player/idle/idle2.png").convert_alpha(),
-            pygame.image.load("assets/player/idle/idle3.png").convert_alpha(),
-            pygame.image.load("assets/player/idle/idle2.png").convert_alpha()
+            pygame.image.load(resource_path("assets/player/idle/idle1.png")).convert_alpha(),
+            pygame.image.load(resource_path("assets/player/idle/idle2.png")).convert_alpha(),
+            pygame.image.load(resource_path("assets/player/idle/idle3.png")).convert_alpha(),
+            pygame.image.load(resource_path("assets/player/idle/idle2.png")).convert_alpha()
         ]
 
         # resize
