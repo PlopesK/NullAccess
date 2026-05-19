@@ -108,24 +108,24 @@ class Player:
         self.rect.x += dx
 
         for wall in walls:
-            if self.rect.colliderect(wall):
+            if self.rect.colliderect(wall.rect):
 
                 if dx > 0:
-                    self.rect.right = wall.left
+                    self.rect.right = wall.rect.left
 
                 if dx < 0:
-                    self.rect.left = wall.right
+                    self.rect.left = wall.rect.right
 
         self.rect.y += dy
 
         for wall in walls:
-            if self.rect.colliderect(wall):
+            if self.rect.colliderect(wall.rect):
 
                 if dy > 0:
-                    self.rect.bottom = wall.top
+                    self.rect.bottom = wall.rect.top
 
                 if dy < 0:
-                    self.rect.top = wall.bottom
+                    self.rect.top = wall.rect.bottom
 
     # -------------------------
     # update

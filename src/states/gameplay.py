@@ -114,8 +114,7 @@ class Gameplay:
         for i in range(layers):
             t = i / layers
 
-            # alpha cresce MUITO mais forte
-            alpha = int((80 + self.alert_level * 80) * (t * t))
+            alpha = int((100 + self.alert_level * 80) * (t * t))
 
             margin = i * 35
 
@@ -182,6 +181,9 @@ class Gameplay:
         for df in self.map.datafiles:
             df.update()
 
+        for wall in self.map.walls:
+            wall.update(self.alert_level)
+
         self.camera.follow(self.player)
 
         self.alert_level = 0
@@ -235,7 +237,7 @@ class Gameplay:
             screen.blit(vignette, (0, 0), special_flags=pygame.BLEND_RGBA_MULT)
 
         for wall in self.map.walls:
-            pygame.draw.rect(screen, (25, 35, 55), self.apply_camera(wall, (glitch_x, glitch_y)))
+            wall.draw(screen, lambda r: self.apply_camera(r, (glitch_x, glitch_y)))
 
         for df in self.map.datafiles:
             df.draw(screen, lambda r: self.apply_camera(r, (glitch_x, glitch_y)))

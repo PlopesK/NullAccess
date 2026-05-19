@@ -4,9 +4,10 @@ import math
 
 from settings import *
 from game.datafiles import DataFile
+from game.walls import Wall
 
 TILE_SIZE = 48
-ENEMY_BORDER_MARGIN = 200
+
 
 class Map:
     def __init__(self, width, height):
@@ -16,10 +17,14 @@ class Map:
         self.grid_width = math.ceil(self.width / TILE_SIZE)
         self.grid_height = math.ceil(self.height / TILE_SIZE)
 
-        self.generate_valid_map()
-        self.frames = self.datafile_frames()
+        self.wall_sprites = self.load_wall_sprites()
+        self.datafile_sprites = self.datafile_frames()
 
+        self.generate_valid_map()
+
+    # -----------------------------
     # UTIL
+    # -----------------------------
     def is_border(self, x, y):
         return (
             x == 0 or y == 0 or
@@ -27,7 +32,9 @@ class Map:
             y == self.grid_height - 1
         )
 
-    # FLOOD FILL (verificação jogável)
+    # -----------------------------
+    # FLOOD FILL
+    # -----------------------------
     def flood_fill(self, grid, start):
         stack = [start]
         visited = set()
@@ -48,18 +55,29 @@ class Map:
                         stack.append((nx, ny))
 
         return visited
-    
+
+    # -----------------------------
+    # SPRITES
+    # -----------------------------
+    def load_wall_sprites(self):
+        sprites = []
+        for i in range(1, 3):
+            img = pygame.image.load(f"src/assets/walls/wall{i}.png").convert_alpha()
+            img = pygame.transform.scale(img, (72, 72))
+            sprites.append(img)
+        return sprites
+
     def datafile_frames(self):
         frames = []
-
         for i in range(1, 5):
             img = pygame.image.load(f"src/assets/datafile/datafile{i}.png").convert_alpha()
             img = pygame.transform.scale(img, (32, 32))
             frames.append(img)
-
         return frames
 
-    # GERA UM MAPA VÁLIDO
+    # -----------------------------
+    # MAP GENERATION
+    # -----------------------------
     def generate_valid_map(self):
 
         while True:
@@ -85,25 +103,47 @@ class Map:
                     self.player_spawn = (px * TILE_SIZE, py * TILE_SIZE)
                     break
 
-            # flood fill base
+            # flood fill
             reachable = self.flood_fill(grid, (px, py))
 
             # saída
-            ex, ey = random.randint(1, self.grid_width - 2), random.randint(1, self.grid_height - 2)
+            while True:
+                ex = random.randint(1, self.grid_width - 2)
+                ey = random.randint(1, self.grid_height - 2)
 
-            if grid[ey][ex] == 1:
-                continue
+                if grid[ey][ex] == 1:
+                    continue
+                if (ex, ey) not in reachable:
+                    continue
 
-            if (ex, ey) not in reachable:
-                continue
+                self.exit_rect = pygame.Rect(
+                    ex * TILE_SIZE,
+                    ey * TILE_SIZE,
+                    TILE_SIZE,
+                    TILE_SIZE
+                )
+                break
 
-            self.exit_rect = pygame.Rect(
-                ex * TILE_SIZE,
-                ey * TILE_SIZE,
-                TILE_SIZE,
-                TILE_SIZE
-            )
+            # -----------------------------
+            # WALLS (CORRIGIDO)
+            # -----------------------------
+            self.walls = []
 
+            for y in range(self.grid_height):
+                for x in range(self.grid_width):
+                    if grid[y][x] == 1:
+                        rect = pygame.Rect(
+                            x * TILE_SIZE,
+                            y * TILE_SIZE,
+                            TILE_SIZE,
+                            TILE_SIZE
+                        )
+
+                        self.walls.append(Wall(rect, self.wall_sprites))
+
+            # -----------------------------
+            # DATAFILES
+            # -----------------------------
             self.datafiles = []
             attempts = 0
 
@@ -119,20 +159,20 @@ class Map:
                     if grid[dy][dx] == 1:
                         continue
 
-                    frames = self.datafile_frames()
-
                     rect = pygame.Rect(
                         dx * TILE_SIZE + 8,
                         dy * TILE_SIZE + 8,
-                        36,
-                        36
+                        32,
+                        32
                     )
 
-                    df = DataFile(rect.x, rect.y, frames)
+                    df = DataFile(rect.x, rect.y, self.datafile_sprites)
                     self.datafiles.append(df)
                     placed = True
 
-            # inimigos (opcional simples)
+            # -----------------------------
+            # ENEMIES SPAWN
+            # -----------------------------
             self.enemies_spawns = []
 
             enemy_candidates = list(reachable)
@@ -153,33 +193,22 @@ class Map:
                 if len(self.enemies_spawns) >= 2:
                     break
 
-            # paredes finais
-            self.walls = []
-
-            for y in range(self.grid_height):
-                for x in range(self.grid_width):
-                    if grid[y][x] == 1:
-                        self.walls.append(
-                            pygame.Rect(
-                                x * TILE_SIZE,
-                                y * TILE_SIZE,
-                                TILE_SIZE,
-                                TILE_SIZE
-                            )
-                        )
-
-            # se chegou aqui → mapa válido
+            # grid final
             self.grid = grid
             return
 
+    # -----------------------------
+    # GAME CHECK
     # -----------------------------
     def all_collected(self):
         return all(df.collected for df in self.datafiles)
 
     # -----------------------------
+    # DRAW (DEBUG ONLY)
+    # -----------------------------
     def draw(self, screen):
         for wall in self.walls:
-            pygame.draw.rect(screen, (25, 35, 55), wall)
+            wall.draw(screen, lambda r: r)
 
         color = (0, 255, 120) if self.all_collected() else (255, 80, 80)
 
