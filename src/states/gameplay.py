@@ -170,6 +170,19 @@ class Gameplay:
         # efeito final: mistura na tela
         screen.blit(self.tunnel_surface, (0, 0), special_flags=pygame.BLEND_RGBA_SUB)
 
+    def draw_noise(self, screen):
+        noise = pygame.Surface((self.game.width, self.game.height), pygame.SRCALPHA)
+
+        for _ in range(200):  # reduzido pra performance
+            x = random.randint(0, self.game.width - 1)
+            y = random.randint(0, self.game.height - 1)
+
+            gray = random.randint(40, 160)
+            alpha = random.randint(2, 12)
+            noise.fill((gray, gray, gray, alpha), (x, y, 2, 2))
+
+        screen.blit(noise, (0, 0), special_flags=pygame.BLEND_RGBA_ADD)
+
     # -------------------------
     # update
     # -------------------------
@@ -229,6 +242,7 @@ class Gameplay:
         self.draw_vignette(screen)
         self.draw_tunnel(screen)
         glitch_x, glitch_y = self.get_glitch_offset()
+        self.draw_noise(screen)
 
         if self.alert_level > 0:
             vignette = pygame.Surface((self.game.width, self.game.height))
