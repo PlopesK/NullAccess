@@ -21,6 +21,7 @@ class Menu:
                 self.game.change_state(Gameplay(self.game))
             if event.key == pygame.K_ESCAPE:
                 pygame.quit()
+                raise SystemExit
 
     def update(self):
         self.noise_timer += 1

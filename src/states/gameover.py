@@ -15,6 +15,7 @@ class GameOver:
                 self.game.change_state(Menu(self.game))
             if event.key == pygame.K_ESCAPE:
                 pygame.quit()
+                raise SystemExit
 
     def update(self):
         pass

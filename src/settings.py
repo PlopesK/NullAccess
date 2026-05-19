@@ -1,16 +1,12 @@
-import os
 import pygame
+from utils.paths import resource_path
 
 pygame.font.init()
 
-FONT_PATH = os.path.join(
-    "assets",
-    "fonts",
-    "CyberpunkCraftpixPixel.otf"
-)
+FONT_PATH = "assets/fonts/CyberpunkCraftpixPixel.otf"
 
 def get_font(size):
-    return pygame.font.Font(FONT_PATH, size)
+    return pygame.font.Font(resource_path(FONT_PATH), size)
 
 FPS = 60
 
