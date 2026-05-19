@@ -247,9 +247,9 @@ class Gameplay:
         if self.alert_level > 0:
             vignette = pygame.Surface((self.game.width, self.game.height))
             vignette.set_alpha(120)
-            vignette.fill((0, 0, 0))
+            vignette.fill((15, 15, 15))
 
-            screen.blit(vignette, (0, 0), special_flags=pygame.BLEND_RGBA_MULT)
+            screen.blit(vignette, (0, 0), special_flags=pygame.BLEND_RGBA_SUB)
 
         for wall in self.map.walls:
             wall.draw(screen, lambda r: self.apply_camera(r, (glitch_x, glitch_y)))

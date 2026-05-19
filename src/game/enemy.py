@@ -21,10 +21,10 @@ class Enemy:
         # -------------------------
 
         self.frames = [
-            pygame.image.load("src/assets/enemy/enemy1.png").convert_alpha(),
-            pygame.image.load("src/assets/enemy/enemy2.png").convert_alpha(),
-            pygame.image.load("src/assets/enemy/enemy1.png").convert_alpha(),
-            pygame.image.load("src/assets/enemy/enemy3.png").convert_alpha()
+            pygame.image.load("assets/enemy/enemy1.png").convert_alpha(),
+            pygame.image.load("assets/enemy/enemy2.png").convert_alpha(),
+            pygame.image.load("assets/enemy/enemy1.png").convert_alpha(),
+            pygame.image.load("assets/enemy/enemy3.png").convert_alpha()
         ]
 
         self.frames = [

@@ -4,7 +4,6 @@ import pygame
 pygame.font.init()
 
 FONT_PATH = os.path.join(
-    "src",
     "assets",
     "fonts",
     "CyberpunkCraftpixPixel.otf"

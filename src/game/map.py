@@ -62,7 +62,7 @@ class Map:
     def load_wall_sprites(self):
         sprites = []
         for i in range(1, 3):
-            img = pygame.image.load(f"src/assets/walls/wall{i}.png").convert_alpha()
+            img = pygame.image.load(f"assets/walls/wall{i}.png").convert_alpha()
             img = pygame.transform.scale(img, (72, 72))
             sprites.append(img)
         return sprites
@@ -70,7 +70,7 @@ class Map:
     def datafile_frames(self):
         frames = []
         for i in range(1, 5):
-            img = pygame.image.load(f"src/assets/datafile/datafile{i}.png").convert_alpha()
+            img = pygame.image.load(f"assets/datafile/datafile{i}.png").convert_alpha()
             img = pygame.transform.scale(img, (32, 32))
             frames.append(img)
         return frames
@@ -144,31 +144,35 @@ class Map:
             # -----------------------------
             # DATAFILES
             # -----------------------------
+            # -----------------------------
             self.datafiles = []
-            attempts = 0
 
-            for _ in range(5):
-                placed = False
+            valid_positions = []
 
-                while not placed and attempts < 500:
-                    attempts += 1
+            for y in range(1, self.grid_height - 1):
+                for x in range(1, self.grid_width - 1):
+                    if grid[y][x] == 0:
+                        valid_positions.append((x, y))
 
-                    dx = random.randint(1, self.grid_width - 2)
-                    dy = random.randint(1, self.grid_height - 2)
+            # garante que existem pelo menos 5 posições
+            if len(valid_positions) < 5:
+                return self.generate_valid_map()
 
-                    if grid[dy][dx] == 1:
-                        continue
+            random.shuffle(valid_positions)
 
-                    rect = pygame.Rect(
-                        dx * TILE_SIZE + 8,
-                        dy * TILE_SIZE + 8,
-                        32,
-                        32
-                    )
+            for i in range(5):
+                dx, dy = valid_positions[i]
 
-                    df = DataFile(rect.x, rect.y, self.datafile_sprites)
-                    self.datafiles.append(df)
-                    placed = True
+                rect = pygame.Rect(
+                    dx * TILE_SIZE + 8,
+                    dy * TILE_SIZE + 8,
+                    32,
+                    32
+                )
+
+                self.datafiles.append(
+                    DataFile(rect.x, rect.y, self.datafile_sprites)
+                )
 
             # -----------------------------
             # ENEMIES SPAWN
