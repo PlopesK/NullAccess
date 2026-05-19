@@ -1,4 +1,8 @@
-# NullAccess
+# 👾 NullAccess
+
+<p align="center">
+  <img src="https://readme-typing-svg.herokuapp.com?font=Fira+Code&size=28&pause=1000&color=00FF99&center=true&vCenter=true&width=500&lines=ACCESS://NULL;SYSTEM+BREACH+DETECTED;INITIALIZING..." />
+</p>
 
 > **Invasão de sistema não autorizada detectada.**
 > *Você realmente deseja continuar?*
@@ -44,6 +48,10 @@ Seu objetivo é explorar um sistema corrompido, coletar arquivos secretos e enco
 ---
 
 ## 📦 Como baixar e executar
+
+### Baixando o Release
+Caso você não tenha interesse em fazer todos as etapas abaixo, você pode entrar na aba de <a href="https://github.com/PlopesK/NullAccess/releases/tag/Demo">Releases</a>
+e baixar o arquivo "NullAccess.rar"!
 
 ### 🔹 Clonando o repositório
 
@@ -113,12 +121,6 @@ dist/main/
 ```
 
 ---
-
-## 📸 Preview
-
-```txt
-ACCESS://NULL
-```
 
 > *“O sistema está instável...”*
 
