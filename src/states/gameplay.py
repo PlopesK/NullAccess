@@ -100,11 +100,12 @@ class Gameplay:
         return result
     
     #Animação do fundo
+    
     def draw_vignette(self, screen):
         pulse = math.sin(self.pulse_time)
 
         # fundo levemente mais claro (respirando)
-        base = 20 + int(pulse * 5)
+        base = 15 + int(pulse * 5)
         screen.fill((base, base, base + 8))
 
         vignette = pygame.Surface((self.game.width, self.game.height), pygame.SRCALPHA)
